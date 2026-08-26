@@ -27,6 +27,7 @@ function startIntro(reduce) {
     intro.played = true;
     intro.fading = false;
     notify({ open: false, fading: false });
+    window.dispatchEvent(new CustomEvent("ivy-intro-done"));
   }, hold + 420);
 }
 
@@ -40,10 +41,12 @@ export default function IntroLoader() {
     if (pathname !== "/") {
       intro.played = true;
       setOpen(false);
+      window.dispatchEvent(new CustomEvent("ivy-intro-done"));
       return;
     }
     if (intro.played) {
       setOpen(false);
+      window.dispatchEvent(new CustomEvent("ivy-intro-done"));
       return;
     }
 

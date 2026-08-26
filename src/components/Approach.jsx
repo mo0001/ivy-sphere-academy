@@ -9,9 +9,12 @@ export default function Approach() {
   useEffect(() => {
     const node = ref.current;
     if (!node) return undefined;
-    const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setSeen(true);
-    }, { threshold: 0.25 });
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setSeen(true);
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -8% 0px" }
+    );
     io.observe(node);
     return () => io.disconnect();
   }, []);

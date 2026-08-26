@@ -20,7 +20,7 @@ export default function StatsBar() {
       ([e]) => {
         if (e.isIntersecting) setActive(true);
       },
-      { threshold: 0.25 }
+      { threshold: 0.1, rootMargin: "0px 0px -8% 0px" }
     );
     io.observe(node);
     return () => io.disconnect();

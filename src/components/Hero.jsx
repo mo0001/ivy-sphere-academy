@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Mail } from "lucide-react";
 import { asset, COUNTRIES, MAIL_ENQUIRE, waLink } from "../config.js";
 import CountUp from "./CountUp.jsx";
@@ -8,11 +9,51 @@ const HERO_WA = waLink(
 );
 
 const STATS = [
-  { to: 100, suffix: "+", label: "Students" },
-  { to: 7, suffix: "+", label: "Years of tutor experience" },
+  { to: 100, suffix: "+", label: "Students", duration: 2000 },
+  { to: 7, suffix: "+", label: "Years of tutor experience", duration: 1600 },
 ];
 
+function useHeroCountActive() {
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    let startTimer;
+    let fallbackTimer;
+
+    const start = (ms) => {
+      window.clearTimeout(startTimer);
+      startTimer = window.setTimeout(() => {
+        if (!cancelled) setActive(true);
+      }, ms);
+    };
+
+    if (window.__ivyIntro?.played) {
+      start(200);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(startTimer);
+      };
+    }
+
+    const onDone = () => start(500);
+    window.addEventListener("ivy-intro-done", onDone);
+    fallbackTimer = window.setTimeout(() => start(400), 3200);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(startTimer);
+      window.clearTimeout(fallbackTimer);
+      window.removeEventListener("ivy-intro-done", onDone);
+    };
+  }, []);
+
+  return active;
+}
+
 export default function Hero() {
+  const countActive = useHeroCountActive();
+
   return (
     <section id="top" className="section pb-24 pt-32 sm:pb-20 sm:pt-32">
       <div className="wrap">
@@ -39,7 +80,7 @@ export default function Hero() {
             {STATS.map((stat) => (
               <div key={stat.label} className="rounded-2xl bg-white/50 px-3 py-4 sm:px-4">
                 <p className="display text-4xl font-semibold sm:text-5xl">
-                  <CountUp to={stat.to} suffix={stat.suffix} active from={0} duration={2000} />
+                  <CountUp to={stat.to} suffix={stat.suffix} active={countActive} duration={stat.duration} />
                 </p>
                 <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-navy-mid">
                   {stat.label}

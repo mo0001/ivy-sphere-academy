@@ -6,32 +6,34 @@ export default function CountUp({
   prefix = "",
   active,
   duration = 1400,
-  from = 0,
 }) {
-  const [n, setN] = useState(from);
+  const [n, setN] = useState(0);
 
   useEffect(() => {
     if (!active) {
-      setN(from);
+      setN(0);
       return undefined;
     }
-    setN(from);
+
+    setN(0);
+
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {
       setN(to);
       return undefined;
     }
-    const t0 = performance.now();
-    let raf;
+
+    let raf = 0;
+    const start = performance.now();
     const tick = (now) => {
-      const p = Math.min(1, (now - t0) / duration);
+      const p = Math.min(1, (now - start) / duration);
       const eased = 1 - (1 - p) ** 3;
-      setN(Math.round(from + (to - from) * eased));
+      setN(Math.round(eased * to));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [active, to, duration, from]);
+  }, [active, to, duration]);
 
   return (
     <>
