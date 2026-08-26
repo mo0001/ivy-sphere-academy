@@ -13,8 +13,8 @@ export const CONTACT = {
   youtube: "https://youtube.com/@ivysphereacademy2",
 };
 
-/** Inbox for FormSubmit POSTs only — not shown in the public footer. */
-export const FORM_EMAIL = "mo0001chauhan@gmail.com";
+/** Inbox for FormSubmit POSTs. Same as the public academy email. */
+export const FORM_EMAIL = CONTACT.email;
 
 export const WA_URL = `https://wa.me/${CONTACT.whatsappE164}`;
 export const MAIL_URL = `mailto:${CONTACT.email}`;
