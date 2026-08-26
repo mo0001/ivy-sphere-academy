@@ -89,11 +89,11 @@ export default function Hero() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-wrap items-center gap-2.5 sm:grid sm:grid-cols-5 sm:gap-2">
+            <div className="flex flex-wrap gap-2.5">
               {COUNTRIES.map((country) => (
                 <span
                   key={country.code}
-                  className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/50 px-2.5 py-1.5 text-xs font-medium text-navy"
+                  className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/90 px-3 py-1.5 text-xs font-medium text-navy"
                 >
                   <img src={asset(`flags/${country.code}.png`)} alt="" className="h-3 w-4 rounded-[2px] object-cover" />
                   {country.name}
