@@ -20,9 +20,7 @@ export default function Terms() {
           </p>
           <p>
             Ivy Sphere Academy offers coaching and support for school curricula and examinations
-            including SAT, PSAT, ACT, AP, GCSE, 11+, IELTS, TOEFL, JEE, NEET, CUET and NET. We are
-            not affiliated with College Board, ACT, CBSE, ICSE, NTA, or any other examination
-            authority.
+            including SAT, PSAT, ACT, AP, GCSE, 11+, IELTS, TOEFL, JEE, NEET, CUET and NET.
           </p>
           <p>
             We do not guarantee scores, ranks or admissions. Progress depends on the student's

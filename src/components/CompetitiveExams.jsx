@@ -17,8 +17,7 @@ export default function CompetitiveExams() {
         </h2>
         <p className="mt-3 text-xl text-sky">Dream Big. Prepare Smart. Achieve Success.</p>
         <p className="mt-4 max-w-2xl text-white/90">
-          Coaching and support for entrance examinations. Ivy Sphere Academy is not affiliated with
-          NTA, NMC, or any other examining body.
+          Coaching and support for entrance examinations.
         </p>
         <div className="mt-8">
           <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-sky">Entrance Exams</h3>

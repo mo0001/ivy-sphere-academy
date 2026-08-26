@@ -213,6 +213,10 @@ export const REASONS = [
     text: "Plans that match the student's level and goals.",
   },
   {
+    title: "1-on-1 customized lessons",
+    text: "Classes are one-to-one and tailored to the student.",
+  },
+  {
     title: "Concept first",
     text: "Strong fundamentals, not last-minute cramming.",
   },
@@ -254,7 +258,8 @@ export const PARENT_POINTS = [
   "Homework tracking",
   "Mock-test analysis",
   "What still needs work",
-  "WhatsApp when it helps",
+  "Personalized learning",
+  "1-on-1 customized lessons",
 ];
 
 export const TESTIMONIALS = [
@@ -271,13 +276,6 @@ export const TESTIMONIALS = [
     place: "Houston, United States",
     quote:
       "My tutor explained algebra clearly instead of rushing a worksheet. I still have work to do, but the weekly plan makes sense.",
-  },
-  {
-    name: "Aisha Rahman",
-    role: "Parent, GCSE",
-    place: "Birmingham, United Kingdom",
-    quote:
-      "We needed help with science past papers. Classes are online, but she doesn't feel on her own — someone checks the homework.",
   },
   {
     name: "Daniel Chen",
@@ -358,11 +356,11 @@ export const FAQS = [
   },
   {
     q: "Do you offer SAT, ACT, AP and other international exams?",
-    a: "Yes. We provide preparation for SAT, PSAT, ACT, AP, GCSE, 11+, IELTS and TOEFL. Support is also available for NAPLAN, AMC and UK SATs based on student requirements. This is coaching and support only. We are not affiliated with any examination authority.",
+    a: "Yes. We provide preparation for SAT, PSAT, ACT, AP, GCSE, 11+, IELTS and TOEFL. Support is also available for NAPLAN, AMC and UK SATs based on student requirements.",
   },
   {
     q: "Do you help with JEE, NEET and CUET?",
-    a: "Yes. We offer coaching and support for JEE Main, JEE Advanced, NEET, CUET and NET. We are not affiliated with NTA, NMC or any examining body.",
+    a: "Yes. We offer coaching and support for JEE Main, JEE Advanced, NEET, CUET and NET.",
   },
   {
     q: "Are classes online? Which countries do you teach in?",

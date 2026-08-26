@@ -24,7 +24,7 @@ const CARDS = [
     id: "competitive-exams",
     kicker: "India",
     title: "JEE, NEET, CUET & NET",
-    line: "Entrance coaching and support. Not affiliated with any examining body.",
+    line: "Entrance coaching and support.",
     chips: COMPETITIVE_EXAMS,
   },
 ];

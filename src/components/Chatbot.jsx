@@ -8,7 +8,7 @@ const KNOWLEDGE = [
   {
     keys: ["sat", "psat", "college board", "reading and writing", "digital sat"],
     answer:
-      "We offer SAT and PSAT preparation: Reading and Writing, Mathematics, vocabulary, grammar, timed practice, full-length mocks, error analysis and individualized study plans. This is coaching support, not an official College Board programme.",
+      "We offer SAT and PSAT preparation: Reading and Writing, Mathematics, vocabulary, grammar, timed practice, full-length mocks, error analysis and individualized study plans.",
   },
   {
     keys: ["act"],
@@ -38,7 +38,7 @@ const KNOWLEDGE = [
   {
     keys: ["jee", "neet", "cuet", "net", "iit", "medical"],
     answer:
-      "We provide coaching and support for JEE Main, JEE Advanced, NEET, CUET and NET. We are not affiliated with NTA, NMC or any examining body.",
+      "We provide coaching and support for JEE Main, JEE Advanced, NEET, CUET and NET.",
   },
   {
     keys: ["cbse", "icse", "state board", "curriculum", "school", "tuition", "subject", "math", "maths", "science", "hindi", "coding"],
@@ -73,11 +73,6 @@ const KNOWLEDGE = [
   {
     keys: ["whatsapp", "phone", "call", "email", "contact", "number"],
     answer: `Email ${CONTACT.email}, use the enquiry form, or let me take your details here and send them to the academy.`,
-  },
-  {
-    keys: ["affiliate", "official", "college board", "nta"],
-    answer:
-      "Ivy Sphere Academy provides coaching and support. We are not affiliated with SAT, College Board, ACT, CBSE, ICSE, JEE, NEET, IELTS, TOEFL or any other examination authority.",
   },
   {
     keys: ["hello", "hi", "hey", "good morning", "good evening"],
