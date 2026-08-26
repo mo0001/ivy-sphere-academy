@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MessageCircle, Send, X } from "lucide-react";
-import { CONTACT, FAQS, waLink } from "../config.js";
+import { Check, MessageCircle, Send, X } from "lucide-react";
+import { CONTACT, FAQS, mailLink, waLink } from "../config.js";
+import WhatsAppIcon from "./WhatsAppIcon.jsx";
+
+const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${CONTACT.email}`;
 
 const KNOWLEDGE = [
   {
@@ -66,11 +69,11 @@ const KNOWLEDGE = [
   {
     keys: ["fee", "fees", "price", "cost", "payment", "package"],
     answer:
-      "Fees depend on the programme, hours and the student's plan. Share your grade and subject, and we will outline options. I can take your details and send them on WhatsApp.",
+      "Fees depend on the programme, hours and the student's plan. Share your grade and subject, and we will outline options. I can take your details and email them to the academy.",
   },
   {
     keys: ["whatsapp", "phone", "call", "email", "contact", "number"],
-    answer: `Email ${CONTACT.email}, use WhatsApp from this site, or let me take your enquiry here and send it for you.`,
+    answer: `Email ${CONTACT.email}, use the enquiry form, or let me take your details here and send them to the academy.`,
   },
   {
     keys: ["affiliate", "official", "college board", "nta"],
@@ -173,23 +176,53 @@ function leadSummary(lead) {
     .join("\n");
 }
 
+function enquiryPayload(lead) {
+  const name = lead.name.trim();
+  return {
+    "Parent/Student Name": name,
+    Grade: lead.grade,
+    "Subject/Exam": lead.programme,
+    Country: lead.country || "",
+    "Phone/WhatsApp Number": lead.phone,
+    Source: "Chatbot",
+    _subject: name ? `Chatbot enquiry: ${name}` : "Chatbot enquiry",
+    _template: "table",
+    _captcha: "false",
+  };
+}
+
+function SentTick({ size = 40 }) {
+  const icon = Math.round(size * 0.45);
+  return (
+    <span
+      className="chat-sent-tick inline-flex items-center justify-center rounded-full bg-sage text-white shadow-[0_8px_18px_-10px_rgba(63,122,104,0.9)]"
+      style={{ width: size, height: size }}
+      aria-hidden="true"
+    >
+      <Check size={icon} strokeWidth={2.6} className="chat-sent-tick-check" />
+    </span>
+  );
+}
+
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [lead, setLead] = useState({ name: "", grade: "", programme: "", country: "", phone: "" });
   const [collecting, setCollecting] = useState(false);
   const [pendingField, setPendingField] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
   const [messages, setMessages] = useState([
     {
       from: "bot",
-      text: "Hi, I am Ivy, the Ivy Sphere Academy assistant. Ask me about programmes, exams or classes. I can also take your enquiry and send it on WhatsApp.",
+      text: "Hi, I am Ivy, the Ivy Sphere Academy assistant. Ask me about programmes, exams or classes. I can also take your enquiry and email it to the academy.",
     },
   ]);
   const endRef = useRef(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, open]);
+  }, [messages, open, sending]);
 
   const chips = useMemo(
     () => ["SAT prep", "School tutoring", "JEE / NEET", "Take an enquiry"],
@@ -233,12 +266,10 @@ export default function Chatbot() {
       if (field === "name" && nextLead.name) reply = `Thanks, ${nextLead.name}.`;
       const nxt = nextLeadPrompt(nextLead);
       if (!nxt) {
-        const summary = leadSummary(nextLead);
-        push("bot", "I have your details. I will open WhatsApp so you can send this to Ivy Sphere Academy.");
-        window.open(waLink(summary), "_blank", "noopener,noreferrer");
         setLead(nextLead);
         setCollecting(false);
         setPendingField("");
+        submitLead(nextLead);
         return;
       }
       setLead(nextLead);
@@ -256,9 +287,40 @@ export default function Chatbot() {
     push("bot", reply);
   };
 
+  const submitLead = async (nextLead) => {
+    setSending(true);
+    push("bot", "Sending…");
+    try {
+      const res = await fetch(FORMSUBMIT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(enquiryPayload(nextLead)),
+      });
+      const data = await res.json().catch(() => ({}));
+      const ok = res.ok && data.success !== false && data.success !== "false";
+      if (!ok) throw new Error(data.message || "Send failed");
+      setSent(true);
+      setLead({ name: "", grade: "", programme: "", country: "", phone: "" });
+      push("bot", "Sent. We’ll get back to you shortly.", {
+        sent: true,
+        wa: waLink(leadSummary(nextLead)),
+      });
+    } catch {
+      const body = leadSummary(nextLead);
+      push("bot", "Could not send your enquiry. Please try again.", {
+        mailto: mailLink(body, nextLead.name ? `Chatbot enquiry: ${nextLead.name}` : "Chatbot enquiry"),
+      });
+    } finally {
+      setSending(false);
+    }
+  };
+
   const send = (text) => {
     const value = (text ?? input).trim();
-    if (!value) return;
+    if (!value || sending) return;
     push("user", value);
     setInput("");
     window.setTimeout(() => handleBotLogic(value), 250);
@@ -269,9 +331,12 @@ export default function Chatbot() {
       {open && (
         <div className="flex h-[min(70vh,520px)] w-[min(calc(100vw-2.5rem),360px)] flex-col overflow-hidden rounded-3xl border border-navy/10 bg-white shadow-lift">
           <div className="flex items-center justify-between bg-navy px-4 py-3 text-white">
-            <div>
-              <p className="text-sm font-semibold">Ivy Assistant</p>
-              <p className="text-[11px] text-sky">Ivy Sphere Academy</p>
+            <div className="flex items-center gap-2.5">
+              {sent && <SentTick size={28} />}
+              <div>
+                <p className="text-sm font-semibold">Ivy Assistant</p>
+                <p className="text-[11px] text-sky">{sent ? "Enquiry sent" : "Ivy Sphere Academy"}</p>
+              </div>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close chat" className="rounded-full p-1 hover:bg-white/10">
               <X size={16} />
@@ -285,7 +350,33 @@ export default function Chatbot() {
                   msg.from === "bot" ? "bg-white text-navy" : "ml-auto bg-navy text-white"
                 }`}
               >
-                {msg.text}
+                {msg.extra?.sent && (
+                  <div className="mb-2 flex justify-center py-1">
+                    <SentTick size={48} />
+                  </div>
+                )}
+                <p className="whitespace-pre-wrap">
+                  {msg.text}
+                  {msg.extra?.mailto && (
+                    <>
+                      {" "}
+                      <a href={msg.extra.mailto} className="font-medium underline underline-offset-2">
+                        Email us instead
+                      </a>
+                    </>
+                  )}
+                </p>
+                {msg.extra?.sent && msg.extra.wa && (
+                  <a
+                    href={msg.extra.wa}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-navy/70 underline-offset-4 hover:text-navy hover:underline"
+                  >
+                    <WhatsAppIcon size={14} />
+                    WhatsApp us
+                  </a>
+                )}
               </div>
             ))}
             <div ref={endRef} />
@@ -295,8 +386,9 @@ export default function Chatbot() {
               <button
                 key={chip}
                 type="button"
-                className="rounded-full bg-sky-soft px-2.5 py-1 text-[12px] font-medium text-navy"
+                className="rounded-full bg-sky-soft px-2.5 py-1 text-[12px] font-medium text-navy disabled:opacity-50"
                 onClick={() => send(chip)}
+                disabled={sending}
               >
                 {chip}
               </button>
@@ -313,9 +405,10 @@ export default function Chatbot() {
               className="input py-2"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about SAT, grades, IELTS..."
+              placeholder={sending ? "Sending…" : "Ask about SAT, grades, IELTS..."}
+              disabled={sending}
             />
-            <button type="submit" className="rounded-full bg-navy p-2.5 text-white" aria-label="Send">
+            <button type="submit" className="rounded-full bg-navy p-2.5 text-white disabled:opacity-50" aria-label="Send" disabled={sending}>
               <Send size={16} />
             </button>
           </form>
