@@ -69,6 +69,12 @@ h3,
   .panel-hover {
     @apply transition duration-300 hover:-translate-y-0.5 hover:shadow-lift;
   }
+
+  @media (max-width: 767px) {
+    .panel {
+      background: rgba(255, 255, 255, 0.64);
+    }
+  }
 }
 
 .globe-veil {
@@ -100,7 +106,16 @@ h3,
 
 @media (max-width: 767px) {
   .globe-scene {
-    opacity: 0.22;
+    opacity: 0.35;
+  }
+
+  .globe-veil {
+    background: radial-gradient(
+      ellipse 58% 52% at 58% 40%,
+      rgba(234, 246, 250, 0.05) 0%,
+      rgba(234, 246, 250, 0.24) 52%,
+      rgba(234, 246, 250, 0.42) 100%
+    );
   }
 }
 
