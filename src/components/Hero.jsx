@@ -17,7 +17,7 @@ export default function Hero() {
     <section id="top" className="section pb-24 pt-32 sm:pb-20 sm:pt-32">
       <div className="wrap">
         <div className="panel bg-white/50 backdrop-blur-md max-w-2xl px-7 py-9 sm:p-10">
-          <h1 className="display text-[1.85rem] font-semibold leading-[1.15] sm:text-4xl lg:text-[3.4rem]">
+          <h1 className="display text-[1.85rem] font-semibold leading-[1.28] sm:text-4xl sm:leading-[1.22] lg:text-[3.4rem]">
             Elevating Scores.
             <br />
             Expanding Futures.
