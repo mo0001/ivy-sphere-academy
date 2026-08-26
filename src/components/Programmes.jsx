@@ -33,13 +33,33 @@ export default function Programmes() {
   return (
     <section id="programmes" className="section">
       <div className="wrap">
-        <p className="section-kicker">Programmes</p>
-        <h2 className="display mt-3 max-w-xl text-[1.85rem] font-semibold sm:text-4xl">
-          School, tests and competitive prep
-        </h2>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="section-kicker">Programmes</p>
+            <h2 className="display mt-3 max-w-xl text-[1.85rem] font-semibold sm:text-4xl">
+              School, tests and competitive prep
+            </h2>
+          </div>
+          <a href="#contact" className="btn-primary self-start sm:self-auto">
+            Enquire
+          </a>
+        </div>
         <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {CARDS.map((card) => (
-            <article key={card.id} id={card.id} className="panel panel-hover flex h-full flex-col gap-3 p-4 sm:p-5">
+            <article
+              key={card.id}
+              id={card.id}
+              role="button"
+              tabIndex={0}
+              className="panel panel-hover flex h-full cursor-pointer flex-col gap-3 p-4 text-left sm:p-5"
+              onClick={() => enquire(card.title)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  enquire(card.title);
+                }
+              }}
+            >
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-navy-mid">{card.kicker}</p>
               <h3 className="text-lg font-semibold text-navy">{card.title}</h3>
               <p className="line-clamp-2 text-sm text-navy/75">{card.line}</p>
@@ -50,9 +70,6 @@ export default function Programmes() {
                   </span>
                 ))}
               </div>
-              <button type="button" className="btn-primary mt-auto self-start py-2 text-xs" onClick={() => enquire(card.title)}>
-                Enquire
-              </button>
             </article>
           ))}
         </div>
