@@ -76,25 +76,30 @@ export default function Hero() {
               Email us
             </a>
           </div>
-          <div className="mb-6 mt-8 grid grid-cols-2 gap-3 pr-0 sm:mb-0">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="rounded-2xl bg-white/50 px-3 py-4 sm:px-4">
-                <p className="display text-4xl font-semibold sm:text-5xl">
-                  <CountUp to={stat.to} suffix={stat.suffix} active={countActive} duration={stat.duration} />
-                </p>
-                <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-navy-mid">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
-          <div className="flex flex-wrap gap-x-3 gap-y-2 pb-6 sm:pb-0">
-            {COUNTRIES.map((country) => (
-              <span key={country.code} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/50 px-2.5 py-1.5 text-xs font-medium text-navy">
-                <img src={asset(`flags/${country.code}.png`)} alt="" className="h-3 w-4 rounded-[2px] object-cover" />
-                {country.name}
-              </span>
-            ))}
+          <div className="mt-8 flex flex-col gap-5 overflow-visible">
+            <div className="grid grid-cols-2 gap-3">
+              {STATS.map((stat) => (
+                <div key={stat.label} className="relative rounded-2xl bg-white/50 px-3 py-4 sm:px-4">
+                  <p className="display text-4xl font-semibold leading-none sm:text-5xl">
+                    <CountUp to={stat.to} suffix={stat.suffix} active={countActive} duration={stat.duration} />
+                  </p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-navy-mid">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5 sm:grid sm:grid-cols-5 sm:gap-2">
+              {COUNTRIES.map((country) => (
+                <span
+                  key={country.code}
+                  className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-white/50 px-2.5 py-1.5 text-xs font-medium text-navy"
+                >
+                  <img src={asset(`flags/${country.code}.png`)} alt="" className="h-3 w-4 rounded-[2px] object-cover" />
+                  {country.name}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
