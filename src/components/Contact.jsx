@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, Mail } from "lucide-react";
-import { CONTACT, CURRICULA, GRADES, LEVELS, MAIL_ENQUIRE, mailLink, waLink } from "../config.js";
+import { CURRICULA, GRADES, LEVELS, MAIL_ENQUIRE, mailLink, waLink } from "../config.js";
+import { sendFormSubmit } from "../formSubmit.js";
 import WhatsAppIcon from "./WhatsAppIcon.jsx";
 
 const empty = {
@@ -24,11 +25,13 @@ const STEPS = [
   { id: "send", title: "Ready to send?", hint: "Check this, then send your enquiry." },
 ];
 
-const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${CONTACT.email}`;
-
 function enquiryPayload(form) {
   const name = form.name.trim();
+  const email = form.email.trim();
   return {
+    name,
+    email,
+    message: buildBody(form),
     "Parent/Student Name": name,
     Grade: form.grade,
     Country: form.country,
@@ -38,12 +41,11 @@ function enquiryPayload(form) {
     "Target Exam/Score": form.target,
     "Preferred Class Timing": form.timing,
     "Phone/WhatsApp Number": form.phone,
-    "Email Address": form.email,
-    Message: form.message,
+    "Email Address": email,
     _subject: name ? `Enquiry from ${name} — Ivy Sphere Academy` : "Enquiry from Ivy Sphere Academy website",
     _template: "table",
     _captcha: "false",
-    ...(form.email.trim() ? { _replyto: form.email.trim() } : {}),
+    ...(email ? { _replyto: email } : {}),
   };
 }
 
@@ -123,25 +125,19 @@ export default function Contact() {
     }
     setError("");
     setStatus("sending");
-    try {
-      const res = await fetch(FORMSUBMIT_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(enquiryPayload(form)),
-      });
-      const data = await res.json().catch(() => ({}));
-      const ok = res.ok && data.success !== false && data.success !== "false";
-      if (!ok) throw new Error(data.message || "Send failed");
+    const result = await sendFormSubmit(enquiryPayload(form));
+    if (result.ok) {
       setStatus("sent");
       setForm(empty);
       setStep(0);
-    } catch {
-      setStatus("idle");
-      setError("Could not send your enquiry. Please try again.");
+      return;
     }
+    setStatus("idle");
+    setError(
+      result.usedFallback
+        ? `${result.error} A backup send window opened — finish it there if it appeared.`
+        : result.error
+    );
   };
 
   const sending = status === "sending";
@@ -286,7 +282,7 @@ export default function Contact() {
             {error && (
               <p className="mt-3 text-sm text-red-700">
                 {error}
-                {error.startsWith("Could not send") && (
+                {!error.startsWith("Please add") && (
                   <>
                     {" "}
                     <a href={mailLink(buildBody(form))} className="font-medium underline underline-offset-2">

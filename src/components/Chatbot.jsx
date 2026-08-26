@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, MessageCircle, Send, X } from "lucide-react";
 import { CONTACT, FAQS, mailLink, waLink } from "../config.js";
+import { sendFormSubmit } from "../formSubmit.js";
 import WhatsAppIcon from "./WhatsAppIcon.jsx";
-
-const FORMSUBMIT_URL = `https://formsubmit.co/ajax/${CONTACT.email}`;
 
 const KNOWLEDGE = [
   {
@@ -178,7 +177,11 @@ function leadSummary(lead) {
 
 function enquiryPayload(lead) {
   const name = lead.name.trim();
+  const message = leadSummary(lead);
   return {
+    name,
+    email: "",
+    message,
     "Parent/Student Name": name,
     Grade: lead.grade,
     "Subject/Exam": lead.programme,
@@ -291,26 +294,26 @@ export default function Chatbot() {
     setSending(true);
     push("bot", "Sending…");
     try {
-      const res = await fetch(FORMSUBMIT_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(enquiryPayload(nextLead)),
-      });
-      const data = await res.json().catch(() => ({}));
-      const ok = res.ok && data.success !== false && data.success !== "false";
-      if (!ok) throw new Error(data.message || "Send failed");
-      setSent(true);
-      setLead({ name: "", grade: "", programme: "", country: "", phone: "" });
-      push("bot", "Sent. We’ll get back to you shortly.", {
-        sent: true,
-        wa: waLink(leadSummary(nextLead)),
-      });
-    } catch {
+      const result = await sendFormSubmit(enquiryPayload(nextLead));
+      if (result.ok) {
+        setSent(true);
+        setLead({ name: "", grade: "", programme: "", country: "", phone: "" });
+        push("bot", "Sent. We’ll get back to you shortly.", {
+          sent: true,
+          wa: waLink(leadSummary(nextLead)),
+        });
+        return;
+      }
       const body = leadSummary(nextLead);
-      push("bot", "Could not send your enquiry. Please try again.", {
+      const note = result.usedFallback
+        ? `${result.error} A backup send window opened — finish it there if it appeared.`
+        : result.error;
+      push("bot", note, {
+        mailto: mailLink(body, nextLead.name ? `Chatbot enquiry: ${nextLead.name}` : "Chatbot enquiry"),
+      });
+    } catch (err) {
+      const body = leadSummary(nextLead);
+      push("bot", err?.message ? `Could not send: ${err.message}` : "Could not send your enquiry. Please try again.", {
         mailto: mailLink(body, nextLead.name ? `Chatbot enquiry: ${nextLead.name}` : "Chatbot enquiry"),
       });
     } finally {
