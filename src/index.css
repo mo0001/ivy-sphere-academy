@@ -125,21 +125,33 @@ h3,
   }
 }
 
+.tf-progress-track {
+  height: 3px;
+  width: 100%;
+  background: #08385814;
+}
+
+.tf-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #083858 0%, #78d0e8 100%);
+  transition: width 280ms ease;
+}
+
 .wizard-pane {
-  animation: wizard-in 260ms ease both;
+  animation: wizard-in 240ms ease both;
 }
 
 .wizard-pane-back {
-  animation: wizard-in-back 260ms ease both;
+  animation: wizard-in-back 240ms ease both;
 }
 
 @keyframes wizard-in {
-  from { opacity: 0; transform: translateX(14px); }
+  from { opacity: 0; transform: translateX(16px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes wizard-in-back {
-  from { opacity: 0; transform: translateX(-14px); }
+  from { opacity: 0; transform: translateX(-16px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
@@ -241,6 +253,10 @@ h3,
   .wizard-pane,
   .wizard-pane-back {
     animation: none;
+  }
+
+  .tf-progress-fill {
+    transition: none;
   }
 
   .chat-sent-tick,

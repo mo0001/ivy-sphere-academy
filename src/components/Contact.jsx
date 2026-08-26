@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, Mail } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Check, ChevronRight, Mail } from "lucide-react";
 import { CURRICULA, GRADES, LEVELS, MAIL_ENQUIRE, mailLink, waLink } from "../config.js";
 import { sendFormSubmit } from "../formSubmit.js";
 import WhatsAppIcon from "./WhatsAppIcon.jsx";
@@ -18,11 +18,107 @@ const empty = {
   message: "",
 };
 
-const STEPS = [
-  { id: "who", title: "Who is this for?", hint: "A few details about you." },
-  { id: "what", title: "What do you need?", hint: "Curriculum, subject and goals." },
-  { id: "when", title: "When and how?", hint: "Timing and how we should reply." },
-  { id: "send", title: "Ready to send?", hint: "Check this, then send your enquiry." },
+const QUESTIONS = [
+  {
+    id: "name",
+    field: "name",
+    type: "text",
+    prompt: "What's your name?",
+    hint: "Parent or student — whoever we should address.",
+    placeholder: "Your name",
+    required: true,
+    autoComplete: "name",
+  },
+  {
+    id: "country",
+    field: "country",
+    type: "text",
+    prompt: "Which country are you in?",
+    hint: "Helps us match a suitable class time.",
+    placeholder: "India, UK, US, Canada, Australia…",
+    autoComplete: "country-name",
+  },
+  {
+    id: "grade",
+    field: "grade",
+    type: "choice",
+    prompt: "What's the student's grade?",
+    hint: "Pick the closest range.",
+    options: GRADES,
+  },
+  {
+    id: "curriculum",
+    field: "curriculum",
+    type: "choice",
+    prompt: "Which school curriculum?",
+    hint: "Choose the closest match.",
+    options: CURRICULA,
+  },
+  {
+    id: "subject",
+    field: "subject",
+    type: "text",
+    prompt: "Which subject or exam?",
+    hint: "For example SAT, Maths, IELTS, or JEE.",
+    placeholder: "SAT, Maths, IELTS…",
+  },
+  {
+    id: "level",
+    field: "level",
+    type: "choice",
+    prompt: "What's the current academic level?",
+    hint: "A rough sense is enough.",
+    options: LEVELS,
+  },
+  {
+    id: "target",
+    field: "target",
+    type: "text",
+    prompt: "What's the target exam or score?",
+    hint: "Optional — a board, a percentile, or a score goal.",
+    placeholder: "e.g. SAT 1450, Grade 10 boards",
+  },
+  {
+    id: "timing",
+    field: "timing",
+    type: "text",
+    prompt: "Preferred class timing?",
+    hint: "Weekdays, weekends, or a time window.",
+    placeholder: "e.g. weekday evenings IST",
+  },
+  {
+    id: "phone",
+    field: "phone",
+    type: "tel",
+    prompt: "What's the best WhatsApp number?",
+    hint: "We'll use this to reply — include country code if you can.",
+    placeholder: "WhatsApp number",
+    required: true,
+    autoComplete: "tel",
+  },
+  {
+    id: "email",
+    field: "email",
+    type: "email",
+    prompt: "And your email?",
+    hint: "Optional, but useful for a written plan.",
+    placeholder: "name@email.com",
+    autoComplete: "email",
+  },
+  {
+    id: "message",
+    field: "message",
+    type: "textarea",
+    prompt: "Anything else we should know?",
+    hint: "Goals, availability, or questions. Shift+Enter for a new line.",
+    placeholder: "Optional note",
+  },
+  {
+    id: "review",
+    type: "review",
+    prompt: "Ready to send?",
+    hint: "Check the details, then send your enquiry.",
+  },
 ];
 
 function enquiryPayload(form) {
@@ -69,12 +165,12 @@ function buildBody(form) {
     .join("\n");
 }
 
-function stepError(step, form) {
-  if (step === 0 && !form.name.trim()) return "Please add your name.";
-  if (step === 2 && !form.phone.trim()) return "Please add a WhatsApp number.";
-  if (step === 3 && (!form.name.trim() || !form.phone.trim())) {
-    return "Please add your name and WhatsApp number.";
-  }
+function stepError(question, form) {
+  if (!question?.required) return "";
+  const value = String(form[question.field] || "").trim();
+  if (question.field === "name" && !value) return "Please add your name.";
+  if (question.field === "phone" && !value) return "Please add a WhatsApp number.";
+  if (!value) return "This one is needed to continue.";
   return "";
 }
 
@@ -84,6 +180,12 @@ export default function Contact() {
   const [error, setError] = useState("");
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
+  const inputRef = useRef(null);
+
+  const question = QUESTIONS[step];
+  const last = QUESTIONS.length - 1;
+  const progress = ((step + 1) / QUESTIONS.length) * 100;
+  const sending = status === "sending";
 
   useEffect(() => {
     const onPrefill = (event) => {
@@ -95,32 +197,43 @@ export default function Contact() {
     return () => window.removeEventListener("ivy-enquire", onPrefill);
   }, []);
 
+  useEffect(() => {
+    const id = window.setTimeout(() => inputRef.current?.focus(), 40);
+    return () => window.clearTimeout(id);
+  }, [step]);
+
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
   const goTo = (next) => {
-    setDir(next > step ? 1 : -1);
+    const clamped = Math.max(0, Math.min(next, last));
+    setDir(clamped > step ? 1 : -1);
     setError("");
-    setStep(next);
+    setStep(clamped);
   };
 
   const goNext = () => {
-    const message = stepError(step, form);
+    const message = stepError(question, form);
     if (message) {
       setError(message);
-      return;
+      return false;
     }
-    goTo(Math.min(step + 1, STEPS.length - 1));
+    goTo(step + 1);
+    return true;
   };
 
-  const submit = async (event) => {
-    event.preventDefault();
-    if (step < STEPS.length - 1) {
-      goNext();
-      return;
-    }
-    const message = stepError(3, form);
+  const skip = () => {
+    if (question.required) return;
+    goTo(step + 1);
+  };
+
+  const sendEnquiry = async () => {
+    const nameErr = stepError(QUESTIONS[0], form);
+    const phoneErr = stepError(QUESTIONS.find((q) => q.field === "phone"), form);
+    const message = nameErr || phoneErr;
     if (message) {
       setError(message);
+      if (nameErr) goTo(0);
+      else goTo(QUESTIONS.findIndex((q) => q.field === "phone"));
       return;
     }
     setError("");
@@ -140,16 +253,41 @@ export default function Contact() {
     );
   };
 
-  const sending = status === "sending";
+  const submit = (event) => {
+    event.preventDefault();
+    if (sending) return;
+    if (step < last) {
+      goNext();
+      return;
+    }
+    sendEnquiry();
+  };
+
+  const onKeyDown = (event) => {
+    if (event.key !== "Enter") return;
+    if (event.target.tagName === "TEXTAREA") {
+      if (event.shiftKey) return;
+      event.preventDefault();
+      if (sending) return;
+      goNext();
+    }
+  };
+
+  const pickChoice = (value) => {
+    update(question.field, value);
+    setError("");
+  };
 
   return (
     <section id="contact" className="section">
-      <div className="wrap grid gap-4 lg:grid-cols-[0.85fr_1.15fr]">
+      <div className="wrap grid gap-4 lg:grid-cols-[0.72fr_1.28fr]">
         <div className="panel flex flex-col justify-between p-6 sm:p-8">
           <div>
             <p className="section-kicker">Contact</p>
             <h2 className="display mt-3 text-[1.85rem] font-semibold sm:text-4xl">Send an enquiry</h2>
-            <p className="mt-4 text-navy/80">A short few questions. Send your enquiry and we will reply with a plan that fits your child.</p>
+            <p className="mt-4 text-navy/80">
+              One question at a time. Send your enquiry and we will reply with a plan that fits your child.
+            </p>
           </div>
           <div className="mt-8 flex flex-col gap-3">
             <a href={waLink("Hello Ivy Sphere Academy, I would like to book an enquiry.")} className="btn-whatsapp" target="_blank" rel="noreferrer">
@@ -164,154 +302,150 @@ export default function Contact() {
         </div>
 
         {status === "sent" ? (
-          <div className="panel p-6 sm:p-8">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage text-white">
-              <Check size={18} />
+          <div className="panel overflow-hidden p-0">
+            <div className="tf-progress-track" aria-hidden="true">
+              <div className="tf-progress-fill" style={{ width: "100%" }} />
             </div>
-            <h3 className="mt-4 text-xl font-semibold text-navy">Thank you. We will be in touch.</h3>
-            <a
-              href={waLink("Hello Ivy Sphere Academy, I just sent an enquiry from the website.")}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-navy/70 underline-offset-4 hover:text-navy hover:underline"
-            >
-              <WhatsAppIcon size={16} />
-              Or message us on WhatsApp
-            </a>
+            <div className="p-6 sm:p-8">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sage text-white">
+                <Check size={18} />
+              </div>
+              <h3 className="mt-4 text-xl font-semibold text-navy">Thank you. We will be in touch.</h3>
+              <p className="mt-2 text-sm text-navy/70">Your enquiry is with us. We will follow up shortly.</p>
+              <a
+                href={waLink("Hello Ivy Sphere Academy, I just sent an enquiry from the website.")}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-navy/70 underline-offset-4 hover:text-navy hover:underline"
+              >
+                <WhatsAppIcon size={16} />
+                Or message us on WhatsApp
+              </a>
+            </div>
           </div>
         ) : (
-          <form onSubmit={submit} className="panel overflow-hidden p-5 sm:p-8">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-navy-mid">
-                {step + 1} of {STEPS.length}
-              </p>
-              <div className="flex items-center gap-1.5" aria-hidden="true">
-                {STEPS.map((item, i) => (
-                  <span
-                    key={item.id}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      i === step ? "w-5 bg-sky" : i < step ? "w-1.5 bg-navy/40" : "w-1.5 bg-navy/15"
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-            <h3 className="mt-3 font-serif text-xl font-semibold text-navy">{STEPS[step].title}</h3>
-            <p className="mt-1 text-sm text-navy/70">{STEPS[step].hint}</p>
-
-            <div className="relative mt-5 min-h-[14.5rem]">
-              <div key={`${step}-${dir}`} className={dir >= 0 ? "wizard-pane" : "wizard-pane-back"}>
-                {step === 0 && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Parent/Student Name" className="sm:col-span-2">
-                      <input className="input" value={form.name} onChange={(e) => update("name", e.target.value)} autoComplete="name" />
-                    </Field>
-                    <Field label="Student's Grade">
-                      <select className="input" value={form.grade} onChange={(e) => update("grade", e.target.value)}>
-                        <option value="">Select</option>
-                        {GRADES.map((g) => (
-                          <option key={g}>{g}</option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Country">
-                      <input className="input" value={form.country} onChange={(e) => update("country", e.target.value)} placeholder="India, UK, US, Canada, Australia" />
-                    </Field>
-                  </div>
-                )}
-                {step === 1 && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="School Curriculum">
-                      <select className="input" value={form.curriculum} onChange={(e) => update("curriculum", e.target.value)}>
-                        <option value="">Select</option>
-                        {CURRICULA.map((c) => (
-                          <option key={c}>{c}</option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Subject/Exam">
-                      <input className="input" value={form.subject} onChange={(e) => update("subject", e.target.value)} placeholder="SAT, Maths, IELTS" />
-                    </Field>
-                    <Field label="Current Academic Level">
-                      <select className="input" value={form.level} onChange={(e) => update("level", e.target.value)}>
-                        <option value="">Select</option>
-                        {LEVELS.map((l) => (
-                          <option key={l}>{l}</option>
-                        ))}
-                      </select>
-                    </Field>
-                    <Field label="Target Exam/Score">
-                      <input className="input" value={form.target} onChange={(e) => update("target", e.target.value)} />
-                    </Field>
-                  </div>
-                )}
-                {step === 2 && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Preferred Class Timing">
-                      <input className="input" value={form.timing} onChange={(e) => update("timing", e.target.value)} />
-                    </Field>
-                    <Field label="Phone/WhatsApp Number">
-                      <input className="input" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" />
-                    </Field>
-                    <Field label="Email Address">
-                      <input type="email" className="input" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" />
-                    </Field>
-                    <Field label="Message" className="sm:col-span-2">
-                      <textarea className="input min-h-[88px]" value={form.message} onChange={(e) => update("message", e.target.value)} />
-                    </Field>
-                  </div>
-                )}
-                {step === 3 && (
-                  <dl className="grid gap-2.5 text-sm sm:grid-cols-2">
-                    <Summary label="Name" value={form.name} />
-                    <Summary label="Grade" value={form.grade} />
-                    <Summary label="Country" value={form.country} />
-                    <Summary label="Curriculum" value={form.curriculum} />
-                    <Summary label="Subject/Exam" value={form.subject} />
-                    <Summary label="Level" value={form.level} />
-                    <Summary label="Target" value={form.target} />
-                    <Summary label="Timing" value={form.timing} />
-                    <Summary label="WhatsApp" value={form.phone} />
-                    <Summary label="Email" value={form.email} />
-                    <Summary label="Message" value={form.message} wide />
-                  </dl>
-                )}
-              </div>
+          <form onSubmit={submit} onKeyDown={onKeyDown} className="panel overflow-hidden p-0">
+            <div className="tf-progress-track" role="progressbar" aria-valuemin={1} aria-valuemax={QUESTIONS.length} aria-valuenow={step + 1} aria-label="Enquiry progress">
+              <div className="tf-progress-fill" style={{ width: `${progress}%` }} />
             </div>
 
-            {error && (
-              <p className="mt-3 text-sm text-red-700">
-                {error}
-                {!error.startsWith("Please add") && (
-                  <>
-                    {" "}
-                    <a href={mailLink(buildBody(form))} className="font-medium underline underline-offset-2">
-                      Email us instead
-                    </a>
-                  </>
-                )}
-              </p>
-            )}
+            <div className="flex min-h-[22rem] flex-col p-5 sm:min-h-[24rem] sm:p-8">
+              <div className="relative flex-1">
+                <div key={`${step}-${dir}`} className={dir >= 0 ? "wizard-pane" : "wizard-pane-back"}>
+                  <p className="flex items-baseline gap-2 font-serif text-[1.65rem] font-semibold leading-snug text-navy sm:text-[1.85rem]">
+                    <span className="shrink-0 text-base font-sans font-semibold tracking-tight text-sky-bright sm:text-lg">
+                      {step + 1} <span className="text-navy/30">→</span>
+                    </span>
+                    <span>{question.prompt}</span>
+                  </p>
+                  {question.hint && <p className="mt-2 text-sm text-navy/70">{question.hint}</p>}
 
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <button
-                type="button"
-                onClick={() => goTo(step - 1)}
-                disabled={step === 0 || sending}
-                className="btn-secondary disabled:pointer-events-none disabled:opacity-40"
-              >
-                <ChevronLeft size={16} />
-                Back
-              </button>
-              {step < STEPS.length - 1 ? (
-                <button type="submit" className="btn-primary">
-                  Next
-                  <ChevronRight size={16} />
+                  {question.type === "review" ? (
+                    <dl className="mt-5 grid gap-2.5 text-sm sm:grid-cols-2">
+                      <Summary label="Name" value={form.name} />
+                      <Summary label="Country" value={form.country} />
+                      <Summary label="Grade" value={form.grade} />
+                      <Summary label="Curriculum" value={form.curriculum} />
+                      <Summary label="Subject/Exam" value={form.subject} />
+                      <Summary label="Level" value={form.level} />
+                      <Summary label="Target" value={form.target} />
+                      <Summary label="Timing" value={form.timing} />
+                      <Summary label="WhatsApp" value={form.phone} />
+                      <Summary label="Email" value={form.email} />
+                      <Summary label="Message" value={form.message} wide />
+                    </dl>
+                  ) : question.type === "choice" ? (
+                    <div className="mt-5 flex flex-col gap-2" role="listbox" aria-label={question.prompt}>
+                      {question.options.map((option) => {
+                        const selected = form[question.field] === option;
+                        return (
+                          <button
+                            key={option}
+                            type="button"
+                            role="option"
+                            aria-selected={selected}
+                            onClick={() => pickChoice(option)}
+                            className={`rounded-xl border px-4 py-2.5 text-left text-[15px] font-medium transition ${
+                              selected
+                                ? "border-navy bg-navy text-white"
+                                : "border-navy/10 bg-white text-navy hover:border-sky hover:bg-sky-soft"
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : question.type === "textarea" ? (
+                    <textarea
+                      ref={inputRef}
+                      className="input mt-5 min-h-[120px]"
+                      value={form.message}
+                      onChange={(e) => update("message", e.target.value)}
+                      placeholder={question.placeholder}
+                    />
+                  ) : (
+                    <input
+                      ref={inputRef}
+                      type={question.type === "email" || question.type === "tel" ? question.type : "text"}
+                      className="input mt-5 text-lg sm:text-xl"
+                      value={form[question.field]}
+                      onChange={(e) => update(question.field, e.target.value)}
+                      placeholder={question.placeholder}
+                      autoComplete={question.autoComplete}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {error && (
+                <p className="mt-4 text-sm text-red-700" role="alert">
+                  {error}
+                  {!error.startsWith("Please add") && (
+                    <>
+                      {" "}
+                      <a href={mailLink(buildBody(form))} className="font-medium underline underline-offset-2">
+                        Email us instead
+                      </a>
+                    </>
+                  )}
+                </p>
+              )}
+
+              <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => goTo(step - 1)}
+                  disabled={step === 0 || sending}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold text-navy/70 transition hover:bg-white hover:text-navy disabled:pointer-events-none disabled:opacity-40"
+                  aria-label="Back"
+                >
+                  <ArrowLeft size={16} />
+                  Back
                 </button>
-              ) : (
-                <button type="submit" className="btn-primary disabled:pointer-events-none disabled:opacity-60" disabled={sending}>
-                  {sending ? "Sending…" : "Send enquiry"}
-                </button>
+
+                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                  {!question.required && question.type !== "review" && (
+                    <button type="button" onClick={skip} disabled={sending} className="btn-secondary">
+                      Skip
+                    </button>
+                  )}
+                  {step < last ? (
+                    <button type="submit" className="btn-primary">
+                      OK
+                      <ChevronRight size={16} />
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn-primary disabled:pointer-events-none disabled:opacity-60" disabled={sending}>
+                      {sending ? "Sending…" : "Send enquiry"}
+                    </button>
+                  )}
+                </div>
+              </div>
+              {step < last && (
+                <p className="mt-2 text-right text-[11px] font-medium tracking-wide text-navy/45">
+                  press Enter ↵
+                </p>
               )}
             </div>
           </form>
@@ -327,14 +461,5 @@ function Summary({ label, value, wide = false }) {
       <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-navy-mid">{label}</dt>
       <dd className="mt-0.5 text-navy">{value.trim() ? value : "—"}</dd>
     </div>
-  );
-}
-
-function Field({ label, className = "", children }) {
-  return (
-    <label className={`block ${className}`}>
-      <span className="mb-1.5 block text-sm font-medium text-navy">{label}</span>
-      {children}
-    </label>
   );
 }
