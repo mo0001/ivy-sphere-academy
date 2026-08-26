@@ -10,16 +10,29 @@ import Terms from "./pages/Terms.jsx";
 function HashScroll() {
   const location = useLocation();
   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    const hasHash = Boolean(location.hash);
+    const stayAtTop = () => {
+      if (!hasHash) window.scrollTo(0, 0);
+    };
+
     const introPending = location.pathname === "/" && window.__ivyIntro && !window.__ivyIntro.played;
-    const delay = location.hash && introPending ? 2300 : 50;
-    if (location.hash) {
+    const delay = hasHash && introPending ? 2300 : 50;
+
+    if (hasHash) {
       const id = location.hash.replace("#", "");
-      window.setTimeout(() => {
+      const timer = window.setTimeout(() => {
         document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
       }, delay);
-    } else if (!introPending) {
-      window.scrollTo(0, 0);
+      return () => window.clearTimeout(timer);
     }
+
+    stayAtTop();
+    window.addEventListener("ivy-intro-done", stayAtTop);
+    return () => window.removeEventListener("ivy-intro-done", stayAtTop);
   }, [location.pathname, location.hash]);
   return null;
 }

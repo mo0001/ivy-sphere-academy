@@ -180,7 +180,9 @@ export default function Contact() {
   const [error, setError] = useState("");
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
+  const [inView, setInView] = useState(false);
   const inputRef = useRef(null);
+  const sectionRef = useRef(null);
 
   const question = QUESTIONS[step];
   const last = QUESTIONS.length - 1;
@@ -198,9 +200,21 @@ export default function Contact() {
   }, []);
 
   useEffect(() => {
-    const id = window.setTimeout(() => inputRef.current?.focus(), 40);
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting && entry.intersectionRatio >= 0.35),
+      { threshold: [0, 0.35, 0.6] }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView) return undefined;
+    const id = window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 40);
     return () => window.clearTimeout(id);
-  }, [step]);
+  }, [step, inView]);
 
   const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
@@ -279,7 +293,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="section">
+    <section id="contact" ref={sectionRef} className="section">
       <div className="wrap grid gap-4 lg:grid-cols-[0.72fr_1.28fr]">
         <div className="panel flex flex-col justify-between p-6 sm:p-8">
           <div>

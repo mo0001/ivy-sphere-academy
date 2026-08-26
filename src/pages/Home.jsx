@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Navbar from "../components/Navbar.jsx";
 import Hero from "../components/Hero.jsx";
 import About from "../components/About.jsx";
@@ -13,6 +14,16 @@ import Contact from "../components/Contact.jsx";
 import Footer from "../components/Footer.jsx";
 
 export default function Home() {
+  useEffect(() => {
+    if (window.location.hash) return undefined;
+    window.scrollTo(0, 0);
+    const onIntroDone = () => {
+      if (!window.location.hash) window.scrollTo(0, 0);
+    };
+    window.addEventListener("ivy-intro-done", onIntroDone);
+    return () => window.removeEventListener("ivy-intro-done", onIntroDone);
+  }, []);
+
   return (
     <div className="relative z-10 min-h-screen">
       <Navbar />
