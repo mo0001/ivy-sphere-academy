@@ -21,7 +21,7 @@ export function CtaFinal() {
               className="btn-whatsapp"
             >
               <WhatsAppIcon size={16} />
-              Talk on WhatsApp
+              Message us on WhatsApp
             </a>
             <a href={MAIL_ENQUIRE} className="btn-secondary">
               <Mail size={16} />

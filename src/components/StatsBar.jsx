@@ -48,9 +48,9 @@ export default function StatsBar() {
             </div>
           ))}
         </div>
-        <div className="mt-8 flex flex-wrap gap-4 border-t border-white/20 pt-6">
+        <div className="mt-8 flex flex-wrap gap-x-4 gap-y-2 border-t border-white/20 pt-6">
           {COUNTRIES.map((country) => (
-            <span key={country.code} className="inline-flex items-center gap-2 text-sm font-medium text-white">
+            <span key={country.code} className="inline-flex shrink-0 items-center gap-2 text-sm font-medium text-white">
               <img src={asset(`flags/${country.code}.png`)} alt="" className="h-4 w-6 rounded-sm object-cover" />
               {country.name}
             </span>

@@ -69,7 +69,7 @@ export default function Hero() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <a href={HERO_WA} target="_blank" rel="noreferrer" className="btn-whatsapp">
               <WhatsAppIcon size={16} />
-              Talk on WhatsApp
+              Message us on WhatsApp
             </a>
             <a href={MAIL_ENQUIRE} className="btn-secondary hidden lg:inline-flex">
               <Mail size={16} />
@@ -88,9 +88,9 @@ export default function Hero() {
               </div>
             ))}
           </div>
-          <div className="flex flex-wrap gap-2 pb-6 sm:pb-0">
+          <div className="flex flex-wrap gap-x-3 gap-y-2 pb-6 sm:pb-0">
             {COUNTRIES.map((country) => (
-              <span key={country.code} className="inline-flex items-center gap-1.5 rounded-full bg-white/50 px-2.5 py-1.5 text-xs font-medium text-navy">
+              <span key={country.code} className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white/50 px-2.5 py-1.5 text-xs font-medium text-navy">
                 <img src={asset(`flags/${country.code}.png`)} alt="" className="h-3 w-4 rounded-[2px] object-cover" />
                 {country.name}
               </span>
