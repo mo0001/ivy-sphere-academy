@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { STEPS } from "../config.js";
 
-const SCROLL_SPAN = 1.4;
 const LERP = 0.1;
 
 function clamp01(n) {
@@ -10,9 +9,19 @@ function clamp01(n) {
 
 function sectionProgress(node) {
   const rect = node.getBoundingClientRect();
-  const viewportCenter = window.innerHeight * 0.5;
-  const span = Math.max(rect.height, 1) * SCROLL_SPAN;
-  return clamp01((viewportCenter - rect.top) / span);
+  const vh = window.innerHeight;
+  const start = vh * 0.95;
+  let end = Math.max(vh * 0.25, 96);
+
+  if (rect.height > vh) {
+    const lastCard = node.querySelector(".approach-step:last-child");
+    if (lastCard) {
+      const lastOffset = lastCard.getBoundingClientRect().top - rect.top;
+      end = vh * 0.55 - lastOffset;
+    }
+  }
+
+  return clamp01((start - rect.top) / Math.max(start - end, 1));
 }
 
 export default function Approach() {
