@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { STEPS } from "../config.js";
 
-const LERP = 0.1;
+const LERP = 0.08;
 
 function clamp01(n) {
   return Math.min(1, Math.max(0, n));
@@ -10,14 +10,14 @@ function clamp01(n) {
 function sectionProgress(node) {
   const rect = node.getBoundingClientRect();
   const vh = window.innerHeight;
-  const start = vh * 0.95;
-  let end = Math.max(vh * 0.25, 96);
+  const start = vh * 0.98;
+  let end = Math.max(vh * 0.18, 96);
 
   if (rect.height > vh) {
     const lastCard = node.querySelector(".approach-step:last-child");
     if (lastCard) {
       const lastOffset = lastCard.getBoundingClientRect().top - rect.top;
-      end = vh * 0.55 - lastOffset;
+      end = vh * 0.48 - lastOffset;
     }
   }
 
