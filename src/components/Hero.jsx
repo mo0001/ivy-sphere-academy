@@ -57,16 +57,16 @@ export default function Hero() {
   return (
     <section id="top" className="section pb-24 pt-32 sm:pb-20 sm:pt-32">
       <div className="wrap">
-        <div className="panel bg-white/50 backdrop-blur-md max-w-2xl px-7 py-9 sm:p-10">
+        <div className="panel mx-auto max-w-2xl bg-white/50 px-7 py-9 text-center backdrop-blur-md sm:p-10">
           <h1 className="display text-[1.85rem] font-semibold leading-[1.28] sm:text-4xl sm:leading-[1.22] lg:text-[3.4rem]">
             Elevating Scores.
             <br />
             Expanding Futures.
           </h1>
-          <p className="mt-4 max-w-md text-base text-navy sm:mt-6 sm:text-lg">
+          <p className="mx-auto mt-4 max-w-md text-base text-navy sm:mt-6 sm:text-lg">
             A personal plan, expert teaching, and progress you can actually see.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a href={HERO_WA} target="_blank" rel="noreferrer" className="btn-whatsapp">
               <WhatsAppIcon size={16} />
               Message us on WhatsApp
@@ -77,7 +77,7 @@ export default function Hero() {
             </a>
           </div>
           <div className="mt-8 flex flex-col gap-5 overflow-visible">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="mx-auto grid max-w-md grid-cols-2 gap-3">
               {STATS.map((stat) => (
                 <div key={stat.label} className="relative rounded-2xl bg-white/50 px-3 py-4 sm:px-4">
                   <p className="display text-4xl font-semibold leading-none sm:text-5xl">
@@ -89,7 +89,7 @@ export default function Hero() {
                 </div>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap justify-center gap-2.5">
               {COUNTRIES.map((country) => (
                 <span
                   key={country.code}
