@@ -1,48 +1,76 @@
 import { useEffect, useRef, useState } from "react";
 import { STEPS } from "../config.js";
 
-const STAGGER_MS = 150;
+const SCROLL_SPAN = 1.4;
+const LERP = 0.1;
+
+function clamp01(n) {
+  return Math.min(1, Math.max(0, n));
+}
+
+function sectionProgress(node) {
+  const rect = node.getBoundingClientRect();
+  const viewportCenter = window.innerHeight * 0.5;
+  const span = Math.max(rect.height, 1) * SCROLL_SPAN;
+  return clamp01((viewportCenter - rect.top) / span);
+}
 
 export default function Approach() {
   const ref = useRef(null);
-  const [seen, setSeen] = useState(false);
-  const [reduced, setReduced] = useState(false);
-  const [lit, setLit] = useState(0);
+  const displayRef = useRef(0);
+  const [flow, setFlow] = useState(0);
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return undefined;
 
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const prefersReduced = mq.matches;
-    setReduced(prefersReduced);
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const readTarget = () => sectionProgress(node);
 
     if (prefersReduced) {
-      setSeen(true);
-      setLit(STEPS.length);
-      return undefined;
+      const snap = () => {
+        const next = readTarget() >= 0.5 ? 1 : 0;
+        displayRef.current = next;
+        setFlow(next);
+      };
+      snap();
+      window.addEventListener("scroll", snap, { passive: true });
+      window.addEventListener("resize", snap);
+      return () => {
+        window.removeEventListener("scroll", snap);
+        window.removeEventListener("resize", snap);
+      };
     }
 
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        setSeen(true);
-        io.disconnect();
-      },
-      { threshold: 0.25 }
-    );
-    io.observe(node);
-    return () => io.disconnect();
-  }, []);
+    let frame = 0;
+    let target = readTarget();
+    const onScroll = () => {
+      target = readTarget();
+    };
 
-  useEffect(() => {
-    if (!seen || reduced) return undefined;
-    setLit(0);
-    const timers = STEPS.map((_, i) =>
-      window.setTimeout(() => setLit(i + 1), i * STAGGER_MS)
-    );
-    return () => timers.forEach(clearTimeout);
-  }, [seen, reduced]);
+    const tick = () => {
+      target = readTarget();
+      const current = displayRef.current;
+      const next = current + (target - current) * LERP;
+      const settled = Math.abs(target - next) < 0.001 ? target : next;
+      if (settled !== current) {
+        displayRef.current = settled;
+        setFlow(settled);
+      }
+      frame = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    frame = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
 
   return (
     <section id="approach" className="section" ref={ref}>
@@ -51,16 +79,20 @@ export default function Approach() {
         <h2 className="display mt-3 max-w-xl text-[1.85rem] font-semibold sm:text-4xl">
           Five steps. One clear path.
         </h2>
-        <div className={`approach-path mt-8 ${seen ? "is-flow" : ""}`}>
+        <div
+          className="approach-path mt-8"
+          style={{ "--flow": String(flow) }}
+        >
           <div className="approach-rail" aria-hidden="true">
             <span className="approach-rail-draw" />
           </div>
           {STEPS.map((step, i) => {
-            const on = lit > i;
+            const threshold = (i + 0.22) / STEPS.length;
+            const on = flow >= threshold;
             return (
               <article
                 key={step.n}
-                className="approach-step"
+                className={`approach-step ${on ? "is-in" : ""}`}
                 style={{ "--i": i }}
               >
                 <div className={`approach-node ${on ? "is-on" : ""}`}>

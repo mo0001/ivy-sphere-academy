@@ -123,6 +123,7 @@ export default function GlobeBackground() {
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let scrollY = window.scrollY;
+    let dampedScroll = window.scrollY;
     const onScroll = () => {
       scrollY = window.scrollY;
     };
@@ -134,7 +135,8 @@ export default function GlobeBackground() {
 
     const tick = (now) => {
       const t = (now - start) / 1000;
-      const extra = reduced ? 0 : scrollY * 0.0008;
+      dampedScroll += (scrollY - dampedScroll) * 0.08;
+      const extra = reduced ? 0 : dampedScroll * 0.00055;
       globe.rotation.y = 0.5 + t * 0.08 + extra;
       globe.rotation.x = 0.14;
       renderer.render(scene, camera);
