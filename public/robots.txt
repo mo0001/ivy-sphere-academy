@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ivy-sphere-academy.web.app/sitemap.xml

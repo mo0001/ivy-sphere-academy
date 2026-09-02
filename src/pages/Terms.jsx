@@ -1,8 +1,20 @@
+import { useEffect } from "react";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import { CONTACT } from "../config.js";
 
 export default function Terms() {
+  useEffect(() => {
+    document.title = "Terms & Conditions | Ivy Sphere Academy";
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) {
+      desc.setAttribute(
+        "content",
+        "Terms for Ivy Sphere Academy online tutoring and exam-preparation support. An enquiry is not enrolment until a plan is agreed."
+      );
+    }
+  }, []);
+
   return (
     <div className="relative z-10 min-h-screen">
       <Navbar />

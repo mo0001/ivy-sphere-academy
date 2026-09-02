@@ -1,8 +1,20 @@
+import { useEffect } from "react";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import { CONTACT } from "../config.js";
 
 export default function Privacy() {
+  useEffect(() => {
+    document.title = "Privacy Policy | Ivy Sphere Academy";
+    const desc = document.querySelector('meta[name="description"]');
+    if (desc) {
+      desc.setAttribute(
+        "content",
+        "How Ivy Sphere Academy collects and uses enquiry information. We do not sell personal data."
+      );
+    }
+  }, []);
+
   return (
     <div className="relative z-10 min-h-screen">
       <Navbar />
