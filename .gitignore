@@ -3,5 +3,7 @@ dist
 .DS_Store
 *.local
 .env
+.env.local
 .env.*
+!.env.example
 tmp-css-check.css
