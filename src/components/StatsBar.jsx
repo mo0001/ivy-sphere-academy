@@ -4,7 +4,7 @@ import { asset, COUNTRIES } from "../config.js";
 
 const STATS = [
   { to: 100, suffix: "+", label: "Students", duration: 2200 },
-  { to: 7, suffix: "+", label: "Years of tutor experience", duration: 1600 },
+  { to: 7, suffix: "+", label: "Years of teaching", duration: 1600 },
   { to: 12, prefix: "1–", label: "School grades", duration: 1400 },
   { to: 5, suffix: "", label: "Countries", duration: 1200 },
 ];

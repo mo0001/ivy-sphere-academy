@@ -10,7 +10,7 @@ const HERO_WA = waLink(
 
 const STATS = [
   { to: 100, suffix: "+", label: "Students", duration: 2000 },
-  { to: 7, suffix: "+", label: "Years of tutor experience", duration: 1600 },
+  { to: 7, suffix: "+", label: "Years of teaching", duration: 1600 },
 ];
 
 function useHeroCountActive() {
