@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ivy-sphere-academy.web.app/sitemap.xml
+Sitemap: https://ivysphereacademy-8bc26.web.app/sitemap.xml
