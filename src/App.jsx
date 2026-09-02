@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import DemoPopup from "./components/DemoPopup.jsx";
 import GlobeBackground from "./components/GlobeBackground.jsx";
 import IntroLoader from "./components/IntroLoader.jsx";
 import WhatsAppFloat from "./components/WhatsAppFloat.jsx";
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/terms" element={<Terms />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <DemoPopup />
       <WhatsAppFloat />
     </BrowserRouter>
   );
