@@ -57,7 +57,7 @@ export default function Hero() {
   return (
     <section id="top" className="section pb-24 pt-32 sm:pb-20 sm:pt-32">
       <div className="wrap">
-        <div className="panel mx-auto max-w-2xl bg-white/50 px-7 py-9 text-center backdrop-blur-md sm:p-10">
+        <div className="panel mx-auto max-w-2xl bg-white/40 px-7 py-9 text-center backdrop-blur-md sm:p-10">
           <h1 className="display text-[1.85rem] font-semibold leading-[1.28] sm:text-4xl sm:leading-[1.22] lg:text-[3.4rem]">
             Elevating Scores.
             <br />
@@ -79,7 +79,7 @@ export default function Hero() {
           <div className="mt-8 flex flex-col gap-5 overflow-visible">
             <div className="mx-auto grid max-w-md grid-cols-2 gap-3">
               {STATS.map((stat) => (
-                <div key={stat.label} className="relative rounded-2xl bg-white/50 px-3 py-4 sm:px-4">
+                <div key={stat.label} className="relative rounded-2xl bg-white/40 px-3 py-4 sm:px-4">
                   <p className="display text-4xl font-semibold leading-none sm:text-5xl">
                     <CountUp to={stat.to} suffix={stat.suffix} active={countActive} duration={stat.duration} />
                   </p>

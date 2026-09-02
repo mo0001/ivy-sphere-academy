@@ -305,13 +305,6 @@ export const TESTIMONIALS = [
     quote:
       "My son was skipping homework. Now there's a simple tracker, and I know which topics to ask about at home.",
   },
-  {
-    name: "Liam Nguyen",
-    role: "Student, IELTS",
-    place: "Sydney, Australia",
-    quote:
-      "Speaking practice is what I needed. We record a short answer, then go through the wording. Ordinary work, but it helps.",
-  },
 ];
 
 export const STAGES = [

@@ -8,7 +8,7 @@ export default function Navbar() {
   return (
     <header className="fixed inset-x-0 top-4 z-50 flex justify-center">
       <div
-        className={`mx-3 w-full border border-white/60 bg-white/50 shadow-lift backdrop-blur-xl md:bg-white/60 ${
+        className={`mx-3 w-full border border-white/60 bg-white/40 shadow-lift backdrop-blur-xl md:bg-white/50 ${
           open ? "rounded-[1.6rem]" : "rounded-full"
         } max-w-[calc(100%-1.5rem)] sm:max-w-lg lg:max-w-5xl`}
       >
